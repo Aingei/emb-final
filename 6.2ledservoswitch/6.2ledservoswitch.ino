@@ -8,11 +8,17 @@ Servo myservo;
 int servoPin = 18;
 int pos = 0;
 
+int buttoncount = 0;
+
+bool buttonstate = false;
+bool buttonlaststate = false;
+
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   myservo.attach(servoPin);
   pinMode(Button, INPUT_PULLUP); // set arduino pin to input mode
   pinMode(LED, OUTPUT);  // set arduino pin to output mode
+
 }
 // void loop() {
 //   for (pos = 0; pos <= 180; pos += 1) {
@@ -26,22 +32,26 @@ void setup() {
 // }
 
 void loop() {
-  int buttonState = digitalRead(Button);  // อ่านค่าปุ่ม
-  Serial.println(buttonState);  // แสดงค่าของปุ่มใน Serial Monitor
+  int buttonstate = digitalRead(Button);  // อ่านค่าปุ่ม
+  Serial.println(buttoncount);  // แสดงค่าของปุ่มใน Serial Monitor
 
-  if (buttonState == LOW) {  // เมื่อปุ่มถูกกด (LOW เพราะใช้ pull-up)
-    digitalWrite(LED, HIGH);  // เปิดไฟ LED
 
-    // ขยับเซอร์โวจาก 0 ถึง 180 องศาและกลับ
-    for (pos = 0; pos <= 180; pos++) {
-      myservo.write(pos);
-      delay(15);
-    }
-    for (pos = 180; pos >= 0; pos--) {
-      myservo.write(pos);
-      delay(15);
-    }
-  } else {
-    digitalWrite(LED, LOW); // ปิดไฟ LED เมื่อปุ่มไม่ถูกกด
+  if (buttonstate == LOW && buttonstate != buttonlaststate) {  
+    buttoncount++;  
   }
+
+  if(buttoncount == 1){
+    digitalWrite(LED, HIGH);  
+    myservo.write(180);
+  }else{
+    digitalWrite(LED, LOW);
+    myservo.write(0);
+  }
+  
+  if(buttoncount == 2){
+    buttoncount = 0;
+  }
+
+  buttonlaststate = buttonstate;
+
 }
